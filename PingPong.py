@@ -6,7 +6,7 @@ import copy
 # Game option
 WINDOW_HEIGHT = 360
 WINDOW_WIDTH = 640
-WINDOW_FPS = 144 # *WARNING* - Settings below 144hz will cause things to behave differently than intended.
+WINDOW_FPS = 144  # *WARNING* - Settings below 144hz will cause things to behave differently than intended.
 
 # Color
 BLACK = pygame.Color(0, 0, 0)
@@ -26,7 +26,7 @@ window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 fps = pygame.time.Clock()
 
 # Game
-running = True
+running = False
 time = 0
 score = 0
 
@@ -45,6 +45,62 @@ bar_size = 50
 bar_direction = "none"
 bar_time = 0
 bar_tick = 5
+
+
+def draw_button(surface, text, rect, color, text_color):
+    """Draws a button with text on the screen."""
+    pygame.draw.rect(surface, color, rect)
+    font = pygame.font.SysFont(None, 40)
+    text_surface = font.render(text, True, text_color)
+    text_rect = text_surface.get_rect(center=rect.center)
+    surface.blit(text_surface, text_rect)
+
+
+# Start screen
+def show_start_screen():
+    """Displays the start screen with a start button."""
+    start_button = pygame.Rect(WINDOW_WIDTH // 2 - 75, WINDOW_HEIGHT // 2 - 25, 150, 50)
+    start_screen = True
+
+    while start_screen:
+        window.fill(BLACK)
+        draw_button(window, "START", start_button, GREEN, BLACK)
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if start_button.collidepoint(event.pos):
+                    start_screen = False
+
+
+# Game over screen
+def show_game_over_screen(final_score):
+    """Displays the game over screen with the final score."""
+    game_over = True
+    while game_over:
+        window.fill(BLACK)
+        font = pygame.font.SysFont(None, 50)
+        game_over_text = font.render("GAME OVER", True, RED)
+        score_text = font.render(f"Your Score: {final_score}", True, WHITE)
+        window.blit(game_over_text, (WINDOW_WIDTH // 2 - game_over_text.get_width() // 2, WINDOW_HEIGHT // 2 - 60))
+        window.blit(score_text, (WINDOW_WIDTH // 2 - score_text.get_width() // 2, WINDOW_HEIGHT // 2))
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:  # Restart game on Enter
+                    game_over = False
+
+
+# Show start screen
+show_start_screen()
+running = True
 
 # Main loop
 while running:
@@ -114,12 +170,12 @@ while running:
 
     # Refresh game screen
     window.fill(BLACK)
-    pygame.draw.circle(window, WHITE, [ball[1], ball[0]], ball_size / 2)
+    pygame.draw.circle(window, WHITE, [ball[1], ball[0]], ball_size // 2)
     pygame.draw.rect(window, GREEN, [bar[1], bar[0], bar_size, 5])
     window.blit(pygame.font.SysFont(None, 25).render(str(score), True, WHITE), (10, 10))
     pygame.display.update()
 
-# Quit
-print("Your score is : " + str(score))
+# Show game over screen
+show_game_over_screen(score)
 pygame.quit()
 quit()
